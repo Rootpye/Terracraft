@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "terracraft",
+  "version": "1.0.0",
+  "name": "TerraCraft Mod",
+  "description": "A Minecraft mod using Fabric",
+  "authors": ["YourName"],
+  "entrypoints": {
+    "main": [
+      "xyz.ryuha.terracraft.terracraft"
+    ]
+  },
+  "depends": {
+    "minecraft": ">=1.19 <1.21",
+    "fabricloader": ">=0.14.0",
+    "fabric": "*"
+  }
+}

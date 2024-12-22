@@ -1,0 +1,11 @@
+{
+  "type": "terracraft:terracraft_world",
+  "generator": {
+    "type": "terracraft:terra_craft_chunk_generator",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:plains"
+    },
+    "settings": "minecraft:overworld"
+  }
+}
