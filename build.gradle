@@ -1,0 +1,102 @@
+plugins {
+    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "terracraft" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+repositories {
+    mavenCentral() // Maven 중앙 저장소
+    maven { url 'https://maven.fabricmc.net/' } // Fabric Maven 저장소
+    maven { url 'https://libraries.minecraft.net/' } // Mojang 라이브러리 저장소
+}
+
+dependencies {
+    // Minecraft 및 Fabric API
+    minecraft "com.mojang:minecraft:1.20.1" // Minecraft 버전
+    mappings "net.fabricmc:yarn:1.20.1+build.5:v2" // Yarn Mappings (해독된 Minecraft API)
+    modImplementation "net.fabricmc:fabric-loader:0.14.21" // Fabric Loader
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.83.0+1.20.1" // Fabric API
+
+    // Mojang 직렬화 라이브러리
+    implementation files('libs/serialization-1.2.1.jar')
+
+    // 유틸리티 라이브러리
+    implementation "com.google.guava:guava:31.1-jre" // Guava 라이브러리
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "loader_version", project.loader_version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.minecraft_version,
+                "loader_version": project.loader_version
+    }
+}
+
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // If Javadoc is generated, this must be specified in that task too.
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release.set(targetJavaVersion)
+    }
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
+}
