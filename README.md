@@ -1,5 +1,5 @@
 # Terracraft
-I want to make miencraft look like terraria... but it doesn't work.
+I want to make minecraft look like terraria... but it doesn't work.
 
 Use it if you can fix this problem. (cause i'm broke now)
 
